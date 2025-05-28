@@ -1,0 +1,1 @@
+Para iniciar o app digit: npx expo start
