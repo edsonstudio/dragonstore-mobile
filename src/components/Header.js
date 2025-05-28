@@ -6,7 +6,7 @@ const Header = ({ onCartPress }) => {
   return (
     <View style={styles.header}>
       <Image 
-        source={require('../assets/images/logo.png')} 
+        source={require('../assets/images/logo-horizontal.png')} 
         style={styles.logo} 
         resizeMode="contain"
       />
@@ -26,10 +26,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    height: 90,
+    marginTop: 30
   },
   logo: {
-    width: 120,
-    height: 40,
+    width: 90,
+    height: 30,
   },
   cartButton: {
     padding: 8,
