@@ -1,45 +1,53 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const ProductCard = ({ product, onAddToCart }) => {
+const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
   return (
-    <View style={styles.card}>
+    <View style={styles.productCard}>
       <View style={styles.tag}>
         <Text style={styles.tagText}>Novo</Text>
       </View>
       
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.description}>{product.description}</Text>
+      <Image
+        source={{ uri: `https://catalog-dragonstore-hjedfrhugwhpdsdd.northeurope-01.azurewebsites.net/${product.image}` }}
+        style={styles.productImage}
+        resizeMode="contain"
+      />
       
-      <View style={styles.rating}>
+      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productDescription}>{product.brand} - {product.model}</Text>
+      
+      <View style={styles.ratingContainer}>
         {[...Array(5)].map((_, i) => (
-          <Text key={i} style={styles.star}>+</Text>
+          <Ionicons key={i} name="star" size={16} color="#FFD700" />
         ))}
-        <Text style={styles.ratingCount}>(+{product.ratingCount})</Text>
+        <Text style={styles.ratingText}>(+{product.ratingCount})</Text>
       </View>
       
       <View style={styles.priceContainer}>
-        <Text style={styles.price}>R$ {product.price.toFixed(2).replace('.', ',')}</Text>
-        <Text style={styles.oldPrice}>R$ {product.oldPrice.toFixed(2).replace('.', ',')}</Text>
-        <Text style={styles.installment}>
-          {product.installments}x R$ {(product.price/product.installments).toFixed(2).replace('.', ',')} sem juros
-        </Text>
+        <Text style={styles.currentPrice}>R$ {product.price.toFixed(2).replace('.', ',')}</Text>
+        <Text style={styles.oldPrice}>R$ {(product.price * 3.5).toFixed(2).replace('.', ',')}</Text>
+        <Text style={styles.installment}>10x R$ {(product.price/10).toFixed(2).replace('.', ',')} sem juros</Text>
       </View>
       
-      <TouchableOpacity style={styles.addButton} onPress={onAddToCart}>
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => onAddToCart(product)}
+      >
         <Text style={styles.addButtonText}>Adicionar ao carrinho</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity>
-        <Text style={styles.moreText}>Ver mais</Text>
+      <TouchableOpacity onPress={() => onViewDetails(product)}>
+        <Text style={styles.moreDetails}>Ver mais</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: 'white',
+  productCard: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -48,6 +56,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  productImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 12,
   },
   tag: {
     backgroundColor: '#FF5722',
@@ -58,64 +71,63 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tagText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#FFFFFF',
     fontSize: 12,
+    fontWeight: 'bold',
   },
-  title: {
+  productName: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#333333',
   },
-  description: {
-    color: '#666',
+  productDescription: {
+    fontSize: 14,
+    color: '#666666',
     marginBottom: 8,
   },
-  rating: {
+  ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
   },
-  star: {
-    color: '#FFC107',
-    marginRight: 4,
-  },
-  ratingCount: {
-    color: '#666',
+  ratingText: {
+    marginLeft: 8,
     fontSize: 12,
-    marginLeft: 4,
+    color: '#666666',
   },
   priceContainer: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  price: {
+  currentPrice: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#2196F3',
   },
   oldPrice: {
     fontSize: 14,
-    color: '#999',
+    color: '#999999',
     textDecorationLine: 'line-through',
   },
   installment: {
     fontSize: 14,
-    color: '#666',
+    color: '#666666',
   },
   addButton: {
     backgroundColor: '#4CAF50',
-    padding: 12,
     borderRadius: 4,
+    padding: 12,
     alignItems: 'center',
     marginBottom: 8,
   },
   addButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  moreText: {
+  moreDetails: {
     color: '#2196F3',
     textAlign: 'center',
+    fontSize: 14,
   },
 });
 
