@@ -5,10 +5,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 ## Get started
 
 1. Do you need:
-
-  - Node.js v22.16.0 or greater
-
-  - Yarn installed
+- Node.js v22.16.0 or greater
+  https://nodejs.org/dist/v22.16.0/
+- Yarn installed
+  ```bash
+  npm install -g yarn
+  ```
 
 2. Install dependencies
 
