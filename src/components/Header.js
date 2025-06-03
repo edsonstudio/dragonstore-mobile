@@ -5,18 +5,43 @@ import { Ionicons } from '@expo/vector-icons';
 import AuthModal from './AuthModal';
 import { getToken, removeToken } from '../services/authService';
 
-// const Header = ({ title, onCartPress }) => {
-const Header = ({ onCartPress }) => {
+const Header = ({ onCartPress, cartItemsCount }) => {
   const [authModalVisible, setAuthModalVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
+    fetchCartItemsCount();
   }, []);
 
   const checkAuthStatus = async () => {
     const token = await getToken();
     setIsLoggedIn(!!token);
+  };
+
+  const fetchCartItemsCount = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(
+        'https://dragonstore-bff-cjcne7ahgwb3fjg6.brazilsouth-01.azurewebsites.net/api/v1/compras/carrinho-quantidade',
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'text/plain',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const count = await response.text(); // A API retorna um texto simples
+        setCartItemsCount(parseInt(count) || 0);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar quantidade do carrinho:', error);
+    }
   };
 
   const handleLogout = async () => {
@@ -27,15 +52,11 @@ const Header = ({ onCartPress }) => {
 
   return (
     <View style={styles.header}>
-      {/* <Text style={styles.title}>{title}</Text> */}
       <Image 
         source={require('../assets/images/logo-horizontal.png')} 
         style={styles.logo} 
         resizeMode="contain"
       />
-      {/* <TouchableOpacity onPress={onCartPress} style={styles.cartButton}>
-        <Ionicons name="cart-outline" size={24} color="black" />
-      </TouchableOpacity> */}
       <View style={styles.iconsContainer}>
         <TouchableOpacity 
           onPress={() => setAuthModalVisible(true)}
@@ -50,8 +71,13 @@ const Header = ({ onCartPress }) => {
             color={isLoggedIn ? '#FFF' : '#000'} 
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onCartPress} style={styles.iconButton}>
+        <TouchableOpacity onPress={onCartPress} style={styles.cartButton}>
           <Ionicons name="cart-outline" size={24} color="#000" />
+          {cartItemsCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cartItemsCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
       <AuthModal 
@@ -86,6 +112,24 @@ const styles = StyleSheet.create({
   },
   cartButton: {
     padding: 8,
+    marginLeft: 10,
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    right: -5,
+    top: -5,
+    backgroundColor: '#F44336',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 20,

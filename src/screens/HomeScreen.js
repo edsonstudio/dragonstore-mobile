@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Text, StyleSheet, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, FlatList, Text, StyleSheet, Image, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import { Ionicons } from '@expo/vector-icons';
+import { getToken } from '../services/authService';
 
 const API_URL = "https://catalog-dragonstore-hjedfrhugwhpdsdd.northeurope-01.azurewebsites.net/api/v2/Products";
 
@@ -12,27 +13,100 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        const formattedProducts = data.map(product => ({
-          ...product,
-          rating: 5,
-          ratingCount: 50
-        }));
-        setProducts(formattedProducts);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
+    const fetchInitialData = async () => {
+      await fetchProducts();
+      await fetchCartItemsCount();
     };
-
-    fetchProducts();
+    fetchInitialData();
   }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      const formattedProducts = data.map(product => ({
+        ...product,
+        rating: 5,
+        ratingCount: 50
+      }));
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCartItemsCount = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        setCartItemsCount(0);
+        return;
+      }
+
+      const response = await fetch(
+        'https://dragonstore-bff-cjcne7ahgwb3fjg6.brazilsouth-01.azurewebsites.net/api/v1/compras/carrinho-quantidade',
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'text/plain',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const count = await response.text();
+        setCartItemsCount(parseInt(count) || 0);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar quantidade do carrinho:', error);
+    }
+  };
+
+  const handleAddToCart = async (product) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        Alert.alert('Atenção', 'Você precisa estar logado para adicionar itens ao carrinho');
+        return;
+      }
+
+      const cartItem = {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        amount: 1
+      };
+
+      const response = await fetch(
+        'https://dragonstore-bff-cjcne7ahgwb3fjg6.brazilsouth-01.azurewebsites.net/api/v1/compras/carrinho/items',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(cartItem)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Erro ao adicionar ao carrinho');
+      }
+
+      Alert.alert('Sucesso', 'Produto adicionado ao carrinho!');
+      await fetchCartItemsCount(); // Atualiza o contador
+    } catch (error) {
+      console.error('Erro ao adicionar ao carrinho:', error);
+      Alert.alert('Erro', 'Não foi possível adicionar o item ao carrinho');
+    }
+  };
 
   const openProductDetails = (product) => {
     setSelectedProduct(product);
@@ -67,7 +141,10 @@ const HomeScreen = () => {
         <Text style={styles.installment}>10x R$ {(item.price/10).toFixed(2).replace('.', ',')} sem juros</Text>
       </View>
       
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => handleAddToCart(item)}
+      >
         <Text style={styles.addButtonText}>Adicionar ao carrinho</Text>
       </TouchableOpacity>
       
@@ -79,7 +156,11 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="Catálogo de Peças" onCartPress={() => navigation.navigate('Cart')} />
+      <Header 
+        title="Catálogo de Peças" 
+        onCartPress={() => navigation.navigate('Cart')} 
+        cartItemsCount={cartItemsCount}
+      />
       
       <FlatList
         data={products}
@@ -89,7 +170,6 @@ const HomeScreen = () => {
         showsVerticalScrollIndicator={false}
       />
       
-      {/* Modal de Detalhes do Produto */}
       <Modal
         animationType="slide"
         transparent={true}

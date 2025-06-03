@@ -1,8 +1,27 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
+const ProductCard = ({ product, onAddToCart, onViewDetails, updateCartCount }) => {
+  const handleAddToCart = async () => {
+    try {
+      // Chama a função passada pelo componente pai
+      const success = await onAddToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        amount: 1
+      });
+      
+      if (success && updateCartCount) {
+        updateCartCount(); // Atualiza o contador do carrinho
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível adicionar o item ao carrinho');
+    }
+  };
+  
   return (
     <View style={styles.productCard}>
       <View style={styles.tag}>
