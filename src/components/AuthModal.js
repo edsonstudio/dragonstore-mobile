@@ -70,6 +70,14 @@ const AuthModal = ({ visible, onClose, isLoggedIn, onLoginSuccess, onLogout }) =
   const handleRegister = async () => {
     setLoading(true);
     setError('');
+    const registerDataJson = JSON.stringify({
+      name: registerData.name,
+      cpf: registerData.cpf.toString(),
+      phone: registerData.phone.toString(),
+      email: registerData.email,
+      password: registerData.password,
+      confirmPassword: registerData.confirmPassword,
+    });
     try {
       const response = await fetch(
         'https://auth-dragonstore-h6fdd6gde2gedndy.northeurope-01.azurewebsites.net/api/v2/identity/nova-conta',
@@ -78,7 +86,7 @@ const AuthModal = ({ visible, onClose, isLoggedIn, onLoginSuccess, onLogout }) =
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(registerData),
+          body: registerDataJson,
         }
       );
 
@@ -92,7 +100,7 @@ const AuthModal = ({ visible, onClose, isLoggedIn, onLoginSuccess, onLogout }) =
       await setToken(data.accessToken);
       onLoginSuccess();
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // TODO: Criar um tratamento de erros mais robusto, interceptor para loading, centralizar os endpoints em services.
     } finally {
       setLoading(false);
     }
