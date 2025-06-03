@@ -11,37 +11,11 @@ const Header = ({ onCartPress, cartItemsCount }) => {
 
   useEffect(() => {
     checkAuthStatus();
-    fetchCartItemsCount();
   }, []);
 
   const checkAuthStatus = async () => {
     const token = await getToken();
     setIsLoggedIn(!!token);
-  };
-
-  const fetchCartItemsCount = async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch(
-        'https://dragonstore-bff-cjcne7ahgwb3fjg6.brazilsouth-01.azurewebsites.net/api/v1/compras/carrinho-quantidade',
-        {
-          method: 'GET',
-          headers: {
-            'accept': 'text/plain',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      if (response.ok) {
-        const count = await response.text(); // A API retorna um texto simples
-        setCartItemsCount(parseInt(count) || 0);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar quantidade do carrinho:', error);
-    }
   };
 
   const handleLogout = async () => {

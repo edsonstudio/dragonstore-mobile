@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList, ActivityIndi
 import { Ionicons } from '@expo/vector-icons';
 import { getToken } from '../services/authService';
 
-const CartScreen = () => {
+const CartScreen = ({ navigation }) => {
   const [cartData, setCartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,6 +11,13 @@ const CartScreen = () => {
   useEffect(() => {
     fetchCartData();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchCartData();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchCartData = async () => {
     try {
@@ -104,6 +111,7 @@ const CartScreen = () => {
         throw new Error('Erro ao atualizar quantidade');
       }
 
+      Alert.alert('Sucesso', 'A quantidade do produto foi atualizada');
       await fetchCartData();
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível atualizar a quantidade');

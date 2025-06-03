@@ -7,7 +7,7 @@ import { getToken } from '../services/authService';
 
 const API_URL = "https://catalog-dragonstore-hjedfrhugwhpdsdd.northeurope-01.azurewebsites.net/api/v2/Products";
 
-const HomeScreen = () => {
+const HomeScreen = ({ route }) => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,22 @@ const HomeScreen = () => {
     };
     fetchInitialData();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchCartItemsCount();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (route.params?.shouldRefreshCart) {
+      fetchCartItemsCount();
+      // Limpar o parâmetro para evitar chamadas desnecessárias
+      navigation.setParams({ shouldRefreshCart: false });
+    }
+  }, [route.params?.shouldRefreshCart]);
+
 
   const fetchProducts = async () => {
     try {
