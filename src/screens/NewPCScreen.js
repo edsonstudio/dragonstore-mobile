@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { getToken } from '../services/authService';
 
 const NewPCScreen = ({ navigation }) => {
-  // const navigation = useNavigation();
   const API_URL = "https://catalog-dragonstore-hjedfrhugwhpdsdd.northeurope-01.azurewebsites.net/";
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState(null);
@@ -66,7 +64,6 @@ const NewPCScreen = ({ navigation }) => {
       try {
         const token = await getToken();
         
-        // Simulando chamadas à API - substitua pelos seus endpoints reais
         const responses = await Promise.all([
           fetch('https://catalog-dragonstore-hjedfrhugwhpdsdd.northeurope-01.azurewebsites.net/api/v2/Products', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
@@ -89,10 +86,10 @@ const NewPCScreen = ({ navigation }) => {
           psus: data[0].filter(x => x.categoryName === "Fonte"),
           cases: data[0].filter(x => x.categoryName === "Gabinete"),
           coolers: data[0].filter(x => x.categoryName === "Cooler"),
-          // monitors: data[0].filter(x => x.categoryName === "Processador"),
-          // keyboards: data[0].filter(x => x.categoryName === "Processador"),
-          // mouse: data[0].filter(x => x.categoryName === "Processador"),
-          // headsets: data[0].filter(x => x.categoryName === "Processador"),
+          monitors: data[0].filter(x => x.categoryName === "Monitor"),
+          keyboards: data[0].filter(x => x.categoryName === "Teclado"),
+          mouse: data[0].filter(x => x.categoryName === "Mouse"),
+          headsets: data[0].filter(x => x.categoryName === "Headset"),
         });
         
         setLoading(false);
