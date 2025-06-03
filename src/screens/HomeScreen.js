@@ -24,8 +24,13 @@ const HomeScreen = ({ route }) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetchCartItemsCount();
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const token = await getToken();
+      if (token) {
+        await fetchCartItemsCount();
+      } else {
+        setCartItemsCount(0);
+      }
     });
     return unsubscribe;
   }, [navigation]);
@@ -38,6 +43,13 @@ const HomeScreen = ({ route }) => {
     }
   }, [route.params?.shouldRefreshCart]);
 
+  const handleLoginSuccess = async () => {
+    await fetchCartItemsCount();
+  };
+
+  const handleLogout = () => {
+    setCartItemsCount(0);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -176,6 +188,8 @@ const HomeScreen = ({ route }) => {
         title="Catálogo de Peças" 
         onCartPress={() => navigation.navigate('Cart')} 
         cartItemsCount={cartItemsCount}
+        onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
       />
       
       <FlatList

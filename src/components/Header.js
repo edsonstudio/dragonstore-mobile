@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AuthModal from './AuthModal';
 import { getToken, removeToken } from '../services/authService';
 
-const Header = ({ onCartPress, cartItemsCount }) => {
+const Header = ({ onCartPress, cartItemsCount, onLoginSuccess, onLogout }) => {
   const [authModalVisible, setAuthModalVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -22,6 +22,7 @@ const Header = ({ onCartPress, cartItemsCount }) => {
     await removeToken();
     setIsLoggedIn(false);
     setAuthModalVisible(false);
+    onLogout();
   };
 
   return (
@@ -61,6 +62,7 @@ const Header = ({ onCartPress, cartItemsCount }) => {
         onLoginSuccess={() => {
           setIsLoggedIn(true);
           setAuthModalVisible(false);
+          onLoginSuccess();
         }}
         onLogout={handleLogout}
       />
